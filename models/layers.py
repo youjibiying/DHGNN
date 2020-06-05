@@ -82,7 +82,7 @@ class GraphConvolution(nn.Module):
 
         self.dim_in = kwargs['dim_in']
         self.dim_out = kwargs['dim_out']
-        self.fc = nn.Linear(self.dim_in, self.dim_out, bias=kwargs['has_bias'])
+        self.fc = nn.Linear(self.dim_in, self.dim_out, bias=kwargs['has_bias']) # 1433,32
         self.dropout = nn.Dropout(p=0.5)
         self.activation = kwargs['activation']
 

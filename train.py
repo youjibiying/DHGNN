@@ -3,10 +3,10 @@
 import argparse
 import os
 parser = argparse.ArgumentParser()
-parser.add_argument('--gpu_id', default='0', help='Visible GPU id')
-parser.add_argument('--model_version', default='DHGNN_v1', help='DHGNN model version, acceptable: DHGNN_v1, DHGNN_v2')
+parser.add_argument('--gpu_id', default='0', type=int,help='Visible GPU id')
+parser.add_argument('--model_version', default='DHGNN_v1',type=str, help='DHGNN model version, acceptable: DHGNN_v1, DHGNN_v2')
 args = parser.parse_args()
-os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
+# os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
 import torch
 import copy
 import time
@@ -55,7 +55,7 @@ def train(model, fts, lbls, idx_train, idx_val, edge_dict, G,
 
     state_dict_updates = 0          # number of epochs that updates state_dict
 
-    model = model.cuda()
+    model = model.to(device)
 
     model_wts_best_val_acc = copy.deepcopy(model.state_dict())
     model_wts_lowest_val_loss = copy.deepcopy(model.state_dict())
@@ -78,7 +78,6 @@ def train(model, fts, lbls, idx_train, idx_val, edge_dict, G,
 
 
             if phase == 'train':
-                scheduler.step()
                 model.train()  # Set model to training mode
             else:
                 model.eval()  # Set model to evaluate mode
@@ -102,9 +101,9 @@ def train(model, fts, lbls, idx_train, idx_val, edge_dict, G,
                 # backward + optimize only if in training phase
                 if phase == 'train':
 
-
                     loss.backward()
                     optimizer.step()
+                    scheduler.step()
 
 
 
@@ -164,13 +163,13 @@ def test(model, best_model_wts, fts, lbls, n_category, idx_test, edge_dict, G, d
     :return:
     """
     best_model_wts, epo = best_model_wts
-    model = model.cuda()
+    model = model.to(device)
     model.load_state_dict(best_model_wts)
     model.eval()
 
     running_corrects = 0.0
 
-    outputs = torch.zeros(len(idx_test), n_category).cuda()
+    outputs = torch.zeros(len(idx_test), n_category).to(device)
 
     for _ in range(test_time):
 
@@ -190,19 +189,19 @@ def test(model, best_model_wts, fts, lbls, n_category, idx_test, edge_dict, G, d
 
 
 def train_test_model(cfg):
-    device = torch.device('cuda:0')
-
+    # device = torch.device('cuda:0')
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     source = source_select(cfg)
     print(f'Using {cfg["activate_dataset"]} dataset')
     fts, lbls, idx_train, idx_val, idx_test, n_category, _, edge_dict = source(cfg)
 
-    H = _edge_dict_to_H(edge_dict)
-    G = _generate_G_from_H(H)
+    H = _edge_dict_to_H(edge_dict) # 由邻接表生成连接矩阵
+    G = _generate_G_from_H(H) # 图卷积标准化图 G= D_v^1/2 H W D_e^-1 H.T D_v^-1/2
 
-    G = torch.Tensor(G).cuda()
+    G = torch.Tensor(G).to(device)
 
-    fts = torch.Tensor(fts).cuda()
-    lbls = torch.Tensor(lbls).squeeze().long().cuda()
+    fts = torch.Tensor(fts).to(device)
+    lbls = torch.Tensor(lbls).squeeze().long().to(device)
 
     model = model_select(cfg['model'])\
         (dim_feat=fts.size(1),
@@ -256,6 +255,6 @@ if __name__ == '__main__':
     print('Using random seed: ', seed_num)
 
     cfg = get_config('config/config.yaml')
-    cfg['model'] = args.model_version
+    # cfg['model'] = args.model_version
     
     train_test_model(cfg)

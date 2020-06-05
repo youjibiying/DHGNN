@@ -82,7 +82,7 @@ def load_citation_data(cfg):
     features = features.todense()
 
     G = nx.from_dict_of_lists(graph)
-    edge_list = G.adjacency_list()
+    edge_list = [list(e[1].keys()) for e in G.adjacency()]#G.adjacency_list()
 
     degree = [0] * len(edge_list)
     if cfg['add_self_loop']:

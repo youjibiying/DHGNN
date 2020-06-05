@@ -16,8 +16,8 @@ class DHGNN_v1(nn.Module):
         self.n_categories = kwargs['n_categories']
         self.n_layers = kwargs['n_layers']
         layer_spec = kwargs['layer_spec']
-        self.dims_in = [self.dim_feat] + layer_spec
-        self.dims_out = layer_spec + [self.n_categories]
+        self.dims_in = [self.dim_feat] + layer_spec # 将多个层的输入维度放在一个列表里
+        self.dims_out = layer_spec + [self.n_categories] # 将
         activations = nn.ModuleList([nn.ReLU() for i in range(self.n_layers - 1)] + [nn.LogSoftmax(dim=-1)])
         self.gcs = nn.ModuleList([GraphConvolution(
             dim_in=self.dims_in[0],
