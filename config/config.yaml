@@ -8,6 +8,37 @@ data_root: &d_r ../data/hgnn
 citation_root: !join [*d_r, dhgnn]            # gcn preprocessed cora data file directory
 
 
+##hypergraph construction
+#add_self_loop: True
+#
+#
+##model
+#model: DHGNN_v1                 # model name
+#k_structured: 128               # number of vertices sampled in a graph hyperedge
+#k_nearest: 10                   # number of vertices in a knn hyperedge
+#k_cluster: 64                   # number of vertices in a kmeans hyperedge
+#clusters: 100                   # number of kmeans clusters
+#adjacent_centers: 1             # number of kmeans hyperedge of each vertex
+#n_layers: 3                      # number of DHGCN layers
+#layer_spec: [32,16]               # number of hidden units, len(layer_spec) = n_layer - 1
+#has_bias: True
+#
+#
+##warm-up parameter
+#wu_knn: 0                       # epoch where knn hyperedge is introduced
+#wu_kmeans: 10                   # epoch where kmeans is computed
+#wu_struct: 5                    # epoch where graph hyperedge is introduced
+#
+##train
+#max_epoch: 1
+#milestones: [200]
+#gamma: 0.5
+#lr: 0.01
+#drop_out: 0.5
+#print_freq: 1
+#weight_decay: 0.0005
+#test_time: 2                      # sampled model multi-test
+
 #hypergraph construction
 add_self_loop: True
 
@@ -15,12 +46,12 @@ add_self_loop: True
 #model
 model: DHGNN_v1                 # model name
 k_structured: 128               # number of vertices sampled in a graph hyperedge
-k_nearest: 10                   # number of vertices in a knn hyperedge
+k_nearest: 64                   # number of vertices in a knn hyperedge
 k_cluster: 64                   # number of vertices in a kmeans hyperedge
-clusters: 100                   # number of kmeans clusters
+clusters: 400                   # number of kmeans clusters
 adjacent_centers: 1             # number of kmeans hyperedge of each vertex
-n_layers: 3                      # number of DHGCN layers
-layer_spec: [32,16]               # number of hidden units, len(layer_spec) = n_layer - 1
+n_layers: 2
+layer_spec: [256]               # number of hidden units, len(layer_spec) = n_layer - 1
 has_bias: True
 
 
@@ -30,11 +61,11 @@ wu_kmeans: 10                   # epoch where kmeans is computed
 wu_struct: 5                    # epoch where graph hyperedge is introduced
 
 #train
-max_epoch: 1
+max_epoch: 25
 milestones: [200]
 gamma: 0.5
 lr: 0.01
 drop_out: 0.5
 print_freq: 1
 weight_decay: 0.0005
-test_time: 2                      # sampled model multi-test
+test_time: 5                      # sampled model multi-test
