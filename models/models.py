@@ -42,6 +42,7 @@ class DHGNN_v1(nn.Module):
 
     def forward(self, **kwargs):
         """
+        **kwargs: args dict
         :param feats:
         :param edge_dict:
         :param G:
